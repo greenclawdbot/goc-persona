@@ -67,20 +67,26 @@ clawdbot skill run goc-persona --setup <persona-name>
 
 Create a bot at the Discord Developer Portal: https://discord.com/developers/applications
 
-1. **Discord Bot Token**
+1. **Create Bot**
    - Click "New Application" → name it (e.g., `developer-bot`)
    - Go to Bot → Add Bot
-   - ❌ **Uncheck "Public Bot"** (keep private)
-   - ✅ **Server Members Intent** (see who talks to the bot)
-   - ✅ **Message Content Intent** ⭐ **REQUIRED** (to read & respond to messages)
-   - ❌ Presence Intent (not needed)
-   - Copy the token (keep it secret!)
 
-2. **Guild ID (Server ID)**
+2. **🔴 Enable Gateway Intents (scroll down in Bot settings)**
+   
+   | Intent | Enable? | Why |
+   |--------|---------|-----|
+   | **Server Members Intent** | ✅ YES | See who talks to the bot |
+   | **Message Content Intent** | ✅ YES ⭐ | **REQUIRED** to read & respond |
+   | **Presence Intent** | ❌ NO | Not needed |
+
+3. **❌ Uncheck "Public Bot"** (keep private)
+4. Copy the **Bot Token** (keep it secret!)
+
+5. **Guild ID (Server ID)**
    - Enable Developer Mode in Discord settings
    - Right-click your server → Copy ID
 
-3. **Channel IDs**
+6. **Channel IDs**
    - Enable Developer Mode
    - Right-click target channels → Copy ID
 
@@ -111,6 +117,24 @@ Use the Discord Developer Portal's URL generator with these permissions:
 - ✅ Create Polls
 - ✅ Bypass Slowmode
 - ✅ Send TTS Messages
+
+### Generate Invite Link
+
+In Discord Developer Portal → OAuth2 → URL Generator:
+
+**1. Scope:** `bot`
+
+**2. Permissions (check these boxes):**
+
+![Discord Permissions](discord-permissions.png)
+
+| Category | Permissions |
+|----------|-------------|
+| Text | Send Messages, Read Message History, Embed Links, Attach Files, Add Reactions, Use Slash Commands, Manage Messages, Pin Messages, Manage Threads |
+| Advanced | Mention Everyone |
+| Extended | Use External Emojis, Use External Stickers, Create Polls |
+
+**3. Copy the generated URL** and open it to invite the bot.
 
 ### API Keys Configuration:
 

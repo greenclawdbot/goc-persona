@@ -149,19 +149,24 @@ module.exports = {
 
 Create a bot at the Discord Developer Portal: https://discord.com/developers/applications
 
-1. **Discord Bot Token**
-   - Create a bot at the link above
-   - ❌ Uncheck "Public Bot" (keep private)
-   - ✅ Server Members Intent (see who talks to the bot)
-   - ✅ Message Content Intent ⭐ REQUIRED (to read & respond)
-   - ❌ Presence Intent (not needed)
-   - Copy the token (keep it secret!)
+1. **Create Bot**
+   - Create application → Bot → Add Bot
+   - Scroll down to "Privileged Gateway Intents":
 
-2. **Guild ID (Server ID)**
+| Intent | Enable? | Why |
+|--------|---------|-----|
+| Server Members Intent | ✅ YES | See who talks to the bot |
+| Message Content Intent | ✅ YES ⭐ | REQUIRED to read & respond |
+| Presence Intent | ❌ NO | Not needed |
+
+2. **❌ Uncheck "Public Bot"** (keep private)
+3. Copy the **Bot Token** (keep it secret!)
+
+4. **Guild ID (Server ID)**
    - Enable Developer Mode in Discord settings
    - Right-click your server → Copy ID
 
-3. **Channel IDs**
+5. **Channel IDs**
    - Enable Developer Mode
    - Right-click target channels → Copy ID
    - Common channels:
@@ -178,6 +183,14 @@ Create a bot at the Discord Developer Portal: https://discord.com/developers/app
 - Manage Threads, Create Public/Private Threads
 - Send Messages in Threads, Pin Messages
 - Use External Emojis, Use External Stickers
+
+### Generate Invite Link:
+
+OAuth2 URL Generator:
+- Scope: bot
+- Permissions: See discord-permissions.png for required checkboxes
+
+Copy the generated URL and open it to invite.
 
 ### API Keys Configuration:
 

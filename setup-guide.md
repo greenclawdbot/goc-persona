@@ -21,12 +21,20 @@ Create a bot at the Discord Developer Portal: https://discord.com/developers/app
 
 1. Click **"New Application"** and give it a name (e.g., `developer-bot`)
 2. Go to **"Bot"** section and click **"Add Bot"**
-3. **Important Settings:**
-   - ❌ Uncheck **"Public Bot"** (keep it private for your server only)
-   - ✅ **"Server Members Intent"** (see who talks to the bot)
-   - ✅ **"Message Content Intent"** ⭐ **REQUIRED** to read messages and respond
-   - ❌ **"Presence Intent"** (not needed for personas)
-4. Copy the **Bot Token** — you'll need this!
+3. **🔴 Enable Gateway Intents (Critical!)**
+   
+   Scroll down to the "Privileged Gateway Intents" section in Bot settings:
+   
+   | Intent | Enable? | Why |
+   |--------|---------|-----|
+   | **Server Members Intent** | ✅ YES | See who is in the server and their roles |
+   | **Message Content Intent** | ✅ YES ⭐ | **REQUIRED** to read messages and respond |
+   | **Presence Intent** | ❌ NO | Not needed for persona bots |
+
+   > ⚠️ **Important:** Message Content Intent is required — without it, the bot cannot read messages to respond!
+
+4. **❌ Uncheck "Public Bot"** (keep it private for your server only)
+5. Copy the **Bot Token** — you'll need this!
 
 ### Step 2: Invite the Bot to Your Server
 
@@ -79,6 +87,30 @@ Use the Discord Developer Portal's URL generator with these permissions:
 - ✅ Manage Nicknames
 - ✅ Manage Expressions
 - ✅ Create Expressions
+
+### Step 2b: Generate Invite Link
+
+In Discord Developer Portal → OAuth2 → URL Generator:
+
+**1. Select Scope:**
+- ✅ `bot`
+
+**2. Select Permissions (check these boxes):**
+
+![Discord Permissions](discord-permissions.png)
+
+| Category | Permissions to Check |
+|----------|---------------------|
+| **Text** | Send Messages, Read Message History, Embed Links, Attach Files, Add Reactions, Use Slash Commands, Manage Messages, Pin Messages, Manage Threads |
+| **Advanced** | Mention Everyone |
+| **Extended** | Use External Emojis, Use External Stickers, Create Polls |
+
+**3. Copy the generated URL** at the bottom and open it to invite the bot.
+
+**Alternative:** Use this pre-built URL format:
+```
+https://discord.com/api/oauth2/authorize?client_id=<CLIENT_ID>&permissions=<PERMISSIONS>&scope=bot%20applications.commands
+```
 
 ### Step 3: Get Required IDs
 

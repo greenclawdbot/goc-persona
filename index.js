@@ -6,10 +6,75 @@
  */
 
 const path = require('path');
+const fs = require('fs');
 const { createPersona } = require('./persona-generator.cjs');
 const { createConfig } = require('./config-schema.cjs');
 const { initializeRepo } = require('./repo-initializer.cjs');
 const registry = require('./persona-registry.cjs');
+
+// Default API keys that personas commonly need
+const DEFAULT_KEY_TYPES = ['openai', 'anthropic', 'elevenlabs', 'huggingface'];
+
+/**
+ * Display setup guidance after persona creation
+ * @param {string} name - Persona name
+ * @param {string} githubRepo - GitHub repository URL
+ */
+function displaySetupGuidance(name, githubRepo) {
+  console.log('\n' + '='.repeat(70));
+  console.log('📋 SETUP GUIDANCE FOR YOUR NEW PERSONA');
+  console.log('='.repeat(70));
+  console.log(`\nPersona "${name}" created successfully!`);
+  console.log(`GitHub: https://github.com/${githubRepo}`);
+  console.log(`\nYour next steps:`);
+  console.log(`\n1️⃣  CONFIGURE API KEYS`);
+  console.log(`   Run: clawdbot skill run goc-persona --add-key ${name} <key-type>`);
+  console.log(`   Common keys: ${DEFAULT_KEY_TYPES.join(', ')}`);
+  console.log(`\n2️⃣  DISCORD BOT SETUP (if using Discord)`);
+  console.log(`   Create bot at: https://discord.com/developers/applications`);
+  console.log(`   You'll need:`);
+  console.log(`   - Discord Bot Token`);
+  console.log(`   - Channel IDs for persona interaction`);
+  console.log(`   - Guild ID (server ID)`);
+  console.log(`\n3️⃣  VIEW DETAILED SETUP INSTRUCTIONS`);
+  console.log(`   Run: clawdbot skill run goc-persona --setup ${name}`);
+  console.log(`\n4️⃣  CHECK PERSONA STATUS`);
+  console.log(`   Run: clawdbot skill run goc-persona --status ${name}`);
+  console.log('\n' + '='.repeat(70));
+}
+
+/**
+ * Prompt user for required setup information
+ * @param {Object} rl - Readline interface
+ * @returns {Promise<Object>} Collected setup info
+ */
+async function promptForSetupInfo(rl) {
+  const info = {
+    discordBotToken: '',
+    discordChannelIds: [],
+    discordGuildId: '',
+    apiKeys: []
+  };
+  
+  return new Promise((resolve) => {
+    rl.question('\n🤖 Discord Bot Setup (optional, press Enter to skip):\n', (answer) => {
+      if (answer.trim().toLowerCase() === 'y' || answer.trim().toLowerCase() === 'yes') {
+        rl.question('   Bot Token: ', (token) => {
+          info.discordBotToken = token.trim();
+          rl.question('   Guild ID (server ID): ', (guildId) => {
+            info.discordGuildId = guildId.trim();
+            rl.question('   Channel IDs (comma-separated): ', (channels) => {
+              info.discordChannelIds = channels.split(',').map(c => c.trim()).filter(c => c);
+              resolve(info);
+            });
+          });
+        });
+      } else {
+        resolve(info);
+      }
+    });
+  });
+}
 
 module.exports = {
   name: 'goc-persona',
@@ -25,7 +90,7 @@ module.exports = {
       async run({ name, model, description }) {
         const personaPath = path.join(process.env.HOME || process.env.USERPROFILE, 'personas', name);
         const githubOrg = 'greenclawdbot';
-        const githubRepo = `${githubOrg}/${name}`;
+        const githubRepo = `${githubOrg}/goc-persona-${name}`;
         
         console.log(`Creating persona "${name}"...`);
         console.log(`Path: ${personaPath}`);
@@ -47,10 +112,98 @@ module.exports = {
         registry.register(name, githubRepo, personaPath);
         console.log('✓ Persona registered');
         
-        console.log(`\n✅ Persona "${name}" created successfully!`);
-        console.log(`GitHub: https://github.com/${githubRepo}`);
-        console.log(`\nTo configure API keys, use:`);
-        console.log(`  clawdbot skill run goc-persona --add-key ${name} <key-type>`);
+        // Step 5: Display setup guidance
+        displaySetupGuidance(name, githubRepo);
+        
+        // Optional: Interactive setup prompt
+        console.log('\n💡 Want to set up your persona now?');
+        console.log('   Run: clawdbot skill run goc-persona --setup ' + name);
+      }
+    },
+    'setup': {
+      description: 'Show setup guidance for a persona (Discord, API keys, channels)',
+      arguments: [
+        { name: 'name', required: true, description: 'Persona name' }
+      ],
+      async run({ name }) {
+        const persona = registry.get(name);
+        
+        if (!persona) {
+          console.error(`Persona "${name}" not found.`);
+          console.log('Use --list to see registered personas.');
+          return;
+        }
+        
+        console.log('\n' + '═'.repeat(70));
+        console.log(`🔧 SETUP GUIDE: ${name}`);
+        console.log('═'.repeat(70));
+        
+        // Read and display setup guide if it exists
+        const setupGuidePath = path.join(__dirname, 'setup-guide.md');
+        if (fs.existsSync(setupGuidePath)) {
+          const setupGuide = fs.readFileSync(setupGuidePath, 'utf8');
+          console.log(setupGuide);
+        } else {
+          console.log(`
+## 📖 Discord Bot Setup
+
+Create a bot at the Discord Developer Portal: https://discord.com/developers/applications
+
+1. **Discord Bot Token**
+   - Create a bot at the link above
+   - ❌ Uncheck "Public Bot" (keep private)
+   - ✅ Server Members Intent (see who talks to the bot)
+   - ✅ Message Content Intent ⭐ REQUIRED (to read & respond)
+   - ❌ Presence Intent (not needed)
+   - Copy the token (keep it secret!)
+
+2. **Guild ID (Server ID)**
+   - Enable Developer Mode in Discord settings
+   - Right-click your server → Copy ID
+
+3. **Channel IDs**
+   - Enable Developer Mode
+   - Right-click target channels → Copy ID
+   - Common channels:
+     • Persona interaction channel
+     • Log/audit channel
+     • Admin commands channel (if applicable)
+
+### Required Permissions:
+
+- View Channels, Send Messages, Manage Messages
+- Embed Links, Attach Files, Read Message History
+- Add Reactions, Use Slash Commands
+- Mention Everyone (@bot-to-bot mentions)
+- Manage Threads, Create Public/Private Threads
+- Send Messages in Threads, Pin Messages
+- Use External Emojis, Use External Stickers
+
+### API Keys Configuration:
+
+Run these commands to configure API keys:
+`);
+          
+          DEFAULT_KEY_TYPES.forEach(keyType => {
+            console.log(`  clawdbot skill run goc-persona --add-key ${name} ${keyType}`);
+          });
+          
+          console.log(`
+
+### Next Steps:
+
+1. Copy your bot token and run:
+   clawdbot skill run goc-persona --add-key ${name} discord
+
+2. Create/update ~/personas/${name}/config.yaml with channel/guild IDs
+
+3. Invite your bot to the server with proper permissions
+
+4. Test with: clawdbot skill run goc-persona --status ${name}
+`);
+        }
+        
+        console.log('═'.repeat(70) + '\n');
       }
     },
     'list': {
@@ -144,7 +297,7 @@ module.exports = {
       async run({ name, repo, path: personaPath }) {
         const basePath = process.env.HOME || process.env.USERPROFILE;
         const resolvedPath = personaPath || path.join(basePath, 'personas', name);
-        const resolvedRepo = repo || `greenclawdbot/${name}`;
+        const resolvedRepo = repo || `greenclawdbot/goc-persona-${name}`;
         
         // Check if path exists
         if (!require('fs').existsSync(resolvedPath)) {

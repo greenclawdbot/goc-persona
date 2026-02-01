@@ -1,14 +1,18 @@
 # Persona Creator Skill
 
-Scaffolds new AI personas with folder structure, config, and GitHub repo.
+Scaffolds new AI personas with folder structure, config, and GitHub repo. Includes setup guidance for Discord bots and API keys.
 
-## Usage
+## Commands
+
+### create-persona
+
+Create a new AI persona with folder structure, config, and GitHub repo.
 
 ```bash
-clawdbot skill run goc-persona --name <persona-name> [--model <model>] [--description <desc>]
+clawdbot skill run goc-persona --create-persona <persona-name> [--model <model>] [--description <desc>]
 ```
 
-## Arguments
+**Arguments:**
 
 | Argument | Required | Default | Description |
 |----------|----------|---------|-------------|
@@ -16,18 +20,187 @@ clawdbot skill run goc-persona --name <persona-name> [--model <model>] [--descri
 | `model` | No | `minimax/MiniMax-M2.1` | Default model for the persona |
 | `description` | No | `""` | Persona description |
 
-## Examples
+**Examples:**
 
 ```bash
 # Create a basic persona with default model
-clawdbot skill run goc-persona --name green-open
+clawdbot skill run goc-persona --create-persona green-open
 
 # Create a persona with a specific model
-clawdbot skill run goc-persona --name green-open --model gpt-4
+clawdbot skill run goc-persona --create-persona green-open --model gpt-4
 
 # Create a persona with description
-clawdbot skill run goc-persona --name my-persona --description "A helpful coding assistant"
+clawdbot skill run goc-persona --create-persona my-persona --description "A helpful coding assistant"
 ```
+
+**After creation**, you'll see setup guidance with:
+- Discord bot setup steps (including making it private)
+- API key configuration commands
+- Next steps to get your persona ready
+
+---
+
+### setup
+
+Show detailed setup guide for a persona. Includes Discord bot setup instructions and API key configuration.
+
+```bash
+clawdbot skill run goc-persona --setup <persona-name>
+```
+
+**What it displays:**
+
+- Discord bot creation and configuration
+- Required permissions and intents
+- How to get Guild ID and Channel IDs
+- API key configuration commands
+- `config.yaml` Discord settings template
+- Troubleshooting tips
+
+**Example output:**
+
+```
+🔧 SETUP GUIDE: developer
+═══════════════════════════════════════════════════════════
+
+## 📖 Discord Bot Setup
+
+Create a bot at the Discord Developer Portal: https://discord.com/developers/applications
+
+1. **Discord Bot Token**
+   - Click "New Application" → name it (e.g., `developer-bot`)
+   - Go to Bot → Add Bot
+   - ❌ **Uncheck "Public Bot"** (keep private)
+   - ✅ **Server Members Intent** (see who talks to the bot)
+   - ✅ **Message Content Intent** ⭐ **REQUIRED** (to read & respond to messages)
+   - ❌ Presence Intent (not needed)
+   - Copy the token (keep it secret!)
+
+2. **Guild ID (Server ID)**
+   - Enable Developer Mode in Discord settings
+   - Right-click your server → Copy ID
+
+3. **Channel IDs**
+   - Enable Developer Mode
+   - Right-click target channels → Copy ID
+
+### Required Permissions
+
+Use the Discord Developer Portal's URL generator with these permissions:
+
+**Essential:**
+- ✅ View Channels
+- ✅ Send Messages
+- ✅ Manage Messages
+- ✅ Embed Links
+- ✅ Attach Files
+- ✅ Read Message History
+- ✅ Add Reactions
+- ✅ Use Slash Commands
+- ✅ Mention Everyone (@bot-to-bot mentions)
+- ✅ Manage Threads
+- ✅ Create Public Threads
+- ✅ Create Private Threads
+- ✅ Send Messages in Threads
+- ✅ Pin Messages
+- ✅ Manage Webhooks
+
+**Optional:**
+- ✅ Use External Emojis
+- ✅ Use External Stickers
+- ✅ Create Polls
+- ✅ Bypass Slowmode
+- ✅ Send TTS Messages
+
+### API Keys Configuration:
+
+clawdbot skill run goc-persona --add-key developer openai
+clawdbot skill run goc-persona --add-key developer anthropic
+clawdbot skill run goc-persona --add-key developer elevenlabs
+clawdbot skill run goc-persona --add-key developer discord
+```
+
+---
+
+### list
+
+List all registered personas with their status and configured keys.
+
+```bash
+clawdbot skill run goc-persona --list
+```
+
+**Output includes:**
+- Persona name and status (ready, needs-setup, error)
+- GitHub repository URL
+- Configured keys
+- Missing keys
+
+---
+
+### status
+
+Show detailed status and configuration for a specific persona.
+
+```bash
+clawdbot skill run goc-persona --status <persona-name>
+```
+
+**Shows:**
+- Current status
+- Repository and path
+- Created/updated timestamps
+- Configured keys with dates
+- Missing keys
+- Readiness indicator
+
+---
+
+### add-key
+
+Mark an API key as configured for a persona.
+
+```bash
+clawdbot skill run goc-persona --add-key <persona-name> <key-type>
+```
+
+**Common key types:**
+- `openai` - OpenAI API (GPT-4)
+- `anthropic` - Anthropic API (Claude)
+- `elevenlabs` - ElevenLabs TTS
+- `huggingface` - Hugging Face
+- `discord` - Discord Bot Token
+- `google` - Google Cloud
+
+**Example:**
+
+```bash
+clawdbot skill run goc-persona --add-key developer openai
+clawdbot skill run goc-persona --add-key developer anthropic
+clawdbot skill run goc-persona --add-key developer discord
+```
+
+---
+
+### register
+
+Manually register an existing persona folder.
+
+```bash
+clawdbot skill run goc-persona --register <persona-name> [--repo <org/repo>] [--path <path>]
+```
+
+---
+
+### unregister
+
+Remove a persona from the registry.
+
+```bash
+clawdbot skill run goc-persona --unregister <persona-name>
+```
+
+---
 
 ## What It Creates
 
@@ -44,6 +217,11 @@ For a persona named `green-open`, the skill creates:
 └── skills/
     └── .gitkeep      # Place skills here
 ```
+
+And creates the GitHub repository:
+
+- **Repo name**: `goc-persona-green-open`
+- **Repo URL**: `https://github.com/greenclawdbot/goc-persona-green-open`
 
 ## Generated Files
 
@@ -91,12 +269,24 @@ The skill automatically:
 3. Commits all scaffolded files
 4. Pushes to GitHub
 
-Repository URL: `https://github.com/greenclawdbot/{persona-name}`
+Repository URL: `https://github.com/greenclawdbot/goc-persona-{persona-name}`
 
 ## After Creation
 
-1. Edit `IDENTITY.md` with the persona's identity
-2. Edit `SOUL.md` with the persona's personality
-3. Customize `config.yaml` as needed
-4. Add skills to the `skills/` folder
-5. The persona is ready to use!
+1. **Run setup guide**: `clawdbot skill run goc-persona --setup <persona-name>`
+2. **Configure API keys**: `clawdbot skill run goc-persona --add-key <persona-name> <key-type>`
+3. **Edit `IDENTITY.md`** with the persona's identity
+4. **Edit `SOUL.md`** with the persona's personality
+5. **Customize `config.yaml`** with Discord channels and settings
+6. **Check status**: `clawdbot skill run goc-persona --status <persona-name>`
+
+## Setup Guide
+
+The skill includes a detailed [setup-guide.md](setup-guide.md) with:
+
+- Discord bot creation step-by-step
+- Required permissions and intents
+- How to get Guild ID and Channel IDs
+- API key configuration
+- `config.yaml` Discord configuration
+- Testing and troubleshooting tips

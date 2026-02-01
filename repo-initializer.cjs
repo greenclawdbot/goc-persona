@@ -10,13 +10,16 @@ const registry = require('./persona-registry.cjs');
 /**
  * Initializes git repo and creates GitHub repo under the organization
  * @param {string} localPath - Local path to the persona directory
- * @param {string} repoName - Repository name
+ * @param {string} repoName - Repository name (e.g., goc-persona-green-open)
  * @param {string} orgName - GitHub organization name
  * @returns {Promise<{success: boolean, repo: string}>}
  */
 async function initializeRepo(localPath, repoName, orgName = 'greenclawdbot') {
   const cwd = process.cwd();
   let repoUrl = null;
+  
+  // Extract persona name from repo name (e.g., "goc-persona-green-open" -> "green-open")
+  const personaName = repoName.replace(/^goc-persona-/, '');
   
   try {
     // Change to persona directory
@@ -80,8 +83,8 @@ async function initializeRepo(localPath, repoName, orgName = 'greenclawdbot') {
     
     // Auto-register the persona after successful GitHub push
     console.log('Auto-registering persona...');
-    registry.register(repoName, githubRepo, localPath);
-    console.log(`✓ Persona "${repoName}" registered in persona registry`);
+    registry.register(personaName, githubRepo, localPath);
+    console.log(`✓ Persona "${personaName}" registered in persona registry`);
     
     // Return to original directory
     process.chdir(cwd);
@@ -98,14 +101,17 @@ async function initializeRepo(localPath, repoName, orgName = 'greenclawdbot') {
 /**
  * Register an existing persona that was pushed to GitHub manually
  * @param {string} localPath - Local path to the persona directory
- * @param {string} repoName - Repository name
+ * @param {string} repoName - Repository name (e.g., goc-persona-green-open)
  * @param {string} orgName - GitHub organization name
  * @returns {Promise<{success: boolean, repo: string}>}
  */
 async function registerExistingRepo(localPath, repoName, orgName = 'greenclawdbot') {
   const githubRepo = `${orgName}/${repoName}`;
   
-  console.log(`Registering existing persona: ${repoName}`);
+  // Extract persona name from repo name (e.g., "goc-persona-green-open" -> "green-open")
+  const personaName = repoName.replace(/^goc-persona-/, '');
+  
+  console.log(`Registering existing persona: ${personaName}`);
   console.log(`Path: ${localPath}`);
   console.log(`Repo: ${githubRepo}`);
   
@@ -116,9 +122,9 @@ async function registerExistingRepo(localPath, repoName, orgName = 'greenclawdbo
   }
   
   // Register in the persona registry
-  registry.register(repoName, githubRepo, localPath);
+  registry.register(personaName, githubRepo, localPath);
   
-  console.log(`✓ Persona "${repoName}" registered successfully!`);
+  console.log(`✓ Persona "${personaName}" registered successfully!`);
   
   return { success: true, repo: githubRepo };
 }
